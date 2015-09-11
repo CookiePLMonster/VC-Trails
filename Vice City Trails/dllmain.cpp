@@ -1,9 +1,9 @@
 ﻿#define WIN32_LEAN_AND_MEAN
 #define _CRT_SECURE_NO_WARNINGS
 
-// Target Win2000
-#define WINVER 0x0500
-#define _WIN32_WINNT 0x0500
+// Target XP
+#define WINVER 0x0502
+#define _WIN32_WINNT 0x0502
 
 #include <windows.h>
 #include <stdio.h>
@@ -79,7 +79,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 	UNREFERENCED_PARAMETER(lpReserved);
 	if(reason == DLL_PROCESS_ATTACH)
 	{
-		if( *(DWORD*)0x667BF0 == 0x53E58955 ) // VC 1.0
+		if( *(DWORD*)0x667BF5 == 0xB85548EC ) // VC 1.0
 		{
 			int				pMenuEntries = *(int*)0x4966A0 + 0x3C8;
 			unsigned char*	pTrailsOptionEnabled = *(unsigned char**)0x48FEB0;
@@ -91,7 +91,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 			LoadSetFile(pTrailsOptionEnabled);
 			((void(*)(const char*))0x48E030)("");	// chdir root dir
 		}
-		else if ( *(DWORD*)0x667C40 == 0x53E58955 )	// VC 1.1
+		else if ( *(DWORD*)0x667C45 == 0xB85548EC )	// VC 1.1
 		{
 			int				pMenuEntries = *(int*)0x4966B0 + 0x3C8;
 			unsigned char*	pTrailsOptionEnabled = *(unsigned char**)0x48FEC0;
@@ -103,7 +103,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 			LoadSetFile(pTrailsOptionEnabled);
 			((void(*)(const char*))0x48E040)("");	// chdir root dir
 		}
-		else
+		else if ( *(DWORD*)0x666BA5 == 0xB85548EC ) // VC Steam
 		{
 			int				pMenuEntries = *(int*)0x4965B0 + 0x3C8;
 			unsigned char*	pTrailsOptionEnabled = *(unsigned char**)0x48FDC0;
