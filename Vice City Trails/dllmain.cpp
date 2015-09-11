@@ -6,9 +6,9 @@
 #define _WIN32_WINNT 0x0502
 
 #include <windows.h>
-#include <stdio.h>
+#include <cstdio>
 
-#define patch(a, v, s) _patch((void*)(a), (DWORD)(v), (s))
+#include "MemoryMgr.h"
 
 struct SMenuEntry
 {
@@ -44,22 +44,6 @@ const SMenuEntry	displaySettingsPatch[] = {
 							{ 34, "FEDS_TB", 0, 33, 320, 353, 3 }
 					};
 
-void _patch(void* pAddress, DWORD data, DWORD iSize)
-{
-	DWORD dwProtect[2];
-	VirtualProtect(pAddress, iSize, PAGE_EXECUTE_READWRITE, &dwProtect[0]);
-	switch(iSize)
-	{
-		case 1: *(BYTE*)pAddress = (BYTE)data;
-			break;
-		case 2: *(WORD*)pAddress = (WORD)data;
-			break;
-		case 4: *(DWORD*)pAddress = (DWORD)data;
-			break;
-	}
-	VirtualProtect(pAddress, iSize, dwProtect[0], &dwProtect[1]);
-}
-
 void LoadSetFile(unsigned char* pTrails)
 {
 	FILE* hFile = fopen("gta_vc.set", "rb");
@@ -79,12 +63,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 	UNREFERENCED_PARAMETER(lpReserved);
 	if(reason == DLL_PROCESS_ATTACH)
 	{
+		using namespace MemoryVP;
+
 		if( *(DWORD*)0x667BF5 == 0xB85548EC ) // VC 1.0
 		{
 			int				pMenuEntries = *(int*)0x4966A0 + 0x3C8;
 			unsigned char*	pTrailsOptionEnabled = *(unsigned char**)0x48FEB0;
 
-			patch(0x4902D2, pTrailsOptionEnabled, 4);
+			Patch<const void*>(0x4902D2, pTrailsOptionEnabled);
 			memcpy((void*)pMenuEntries, displaySettingsPatch, sizeof(displaySettingsPatch));
 
 			((void(*)())0x48E020)();	// chdir user dir
@@ -96,7 +82,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 			int				pMenuEntries = *(int*)0x4966B0 + 0x3C8;
 			unsigned char*	pTrailsOptionEnabled = *(unsigned char**)0x48FEC0;
 
-			patch(0x4902E2, pTrailsOptionEnabled, 4);
+			Patch<const void*>(0x4902E2, pTrailsOptionEnabled);
 			memcpy((void*)pMenuEntries, displaySettingsPatch, sizeof(displaySettingsPatch));
 
 			((void(*)())0x48E030)();	// chdir user dir
@@ -108,7 +94,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
 			int				pMenuEntries = *(int*)0x4965B0 + 0x3C8;
 			unsigned char*	pTrailsOptionEnabled = *(unsigned char**)0x48FDC0;
 
-			patch(0x4901E2, pTrailsOptionEnabled, 4);
+			Patch<const void*>(0x4901E2, pTrailsOptionEnabled);
 			memcpy((void*)pMenuEntries, displaySettingsPatch, sizeof(displaySettingsPatch));
 
 			((void(*)())0x48DF10)();	// chdir user dir
